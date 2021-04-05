@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { util } from 'js-conflux-sdk'
+import { Drip } from 'js-conflux-sdk'
 
 import conflux from '../lib/conflux'
 import confluxPortal from '../lib/conflux-portal'
@@ -13,6 +13,7 @@ export default class ConfluxPortal extends PureComponent {
     status: PORTAL_STATE_DISCONNECTED,
     connecting: false,
     account: '',
+    oldaccount: '',
     balance: '',
   }
 
@@ -20,7 +21,20 @@ export default class ConfluxPortal extends PureComponent {
     this.setState({ status: PORTAL_STATE_CONNECTING })
     await confluxPortal.enable()
     const account = confluxPortal.getAccount()
-    this.setState({ status: PORTAL_STATE_CONNECTED, account, balance: '' })
+    console.log(account)
+    const oldaccount = "0x" + account.split(':')[1]
+    this.setState({ status: PORTAL_STATE_CONNECTED, account, oldaccount, balance: '' })
+    this.refreshBalance()
+  }
+
+  refreshBalance = async () => {
+    if (!this.state.account) {
+      return
+    }
+    this.setState({ balance: '' })
+    const balance = await conflux.getBalance(this.state.account)
+    console.log("balance is: ", balance)
+    this.setState({ balance: Drip(balance).toCFX() })
   }
 
   renderPortalButton = () => {
@@ -39,7 +53,7 @@ export default class ConfluxPortal extends PureComponent {
     } else {
       return (
         <button className="btn btn-primary" onClick={this.connectConfluxPortal}>
-          <p>Connect to Conflux Portal</p>
+          Connect to Conflux Portal
         </button>
       )
     }
@@ -50,6 +64,14 @@ export default class ConfluxPortal extends PureComponent {
       return (
         <div className="mt-3">
           <div>Account: <code>{this.state.account}</code></div>
+          <div className="d-flex align-items-center">
+            <div className="mr-1">Balance: {this.state.balance ? `${this.state.balance} CFX` : 'Loading...'}</div>
+            <span
+              className="badge badge-primary"
+              style={{ cursor: 'pointer' }}
+              onClick={this.refreshBalance}
+            >refresh</span>
+          </div>
         </div>
       )
     }

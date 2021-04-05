@@ -1,5 +1,6 @@
 import { Conflux } from 'js-conflux-sdk'
 
+import abiCoin from './abi/Coin.json'
 import abiOrderBook from './abi/orderBook.json'
 
 const conflux = new Conflux({
@@ -9,14 +10,31 @@ const conflux = new Conflux({
   logger: console,
 })
 
-export const ContractOrderBook = {
-  name: 'OrderBook',
-  abi: abiOrderBook,
+export const ContractCoin = {
+  name: 'Coin',
+  abi: abiCoin,
   contract: conflux.Contract({
     abi: abiOrderBook,
-    address: process.env.REACT_APP_CONFLUX_ORDERBOOK_ADDRESS,
+    address: process.env.REACT_APP_CONFLUX_COIN_ADDRESS,
   }),
 }
 
+export const ContractOrderBook = {
+  name: 'orderBook',
+  abi: abiOrderBook,
+  contract: conflux.Contract({
+    abi: abiOrderBook,
+    address: process.env.REACT_APP_CONFLUX_COIN_ADDRESS,
+  }),
+}
+
+export const ContractOrderBook_issueStock = {
+  name: 'orderBook',
+  abi: abiOrderBook[19],
+  contract: conflux.Contract({
+    abi: abiOrderBook,
+    address: process.env.REACT_APP_CONFLUX_COIN_ADDRESS,
+  }),
+}
 
 export default conflux
